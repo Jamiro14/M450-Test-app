@@ -16,7 +16,18 @@ public class LearnerIntegrationTests
         var entry = new Entry("Sam Test", "Orion", "Tourismus", 30, false, false, false, true);
         var response = await client.PostAsJsonAsync("/api/cases", entry);
         var records = await client.GetFromJsonAsync<List<Case>>("/api/cases");
-        // TODO: HTTP-Status, gespeicherte Werte und Entscheidung prüfen.
-        Assert.Fail("TODO: Assertions gemäss Arbeitsauftrag ergänzen.");
+
+        // R7: Ein gültiger Fall wird mit HTTP 201 gespeichert.
+        Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+
+        // R8: Der gespeicherte Fall lässt sich wieder auslesen.
+        Assert.IsNotNull(records);
+        Assert.AreEqual(1, records.Count);
+        var saved = records[0];
+        Assert.AreEqual(entry, saved.Applicant);
+        Assert.IsTrue(saved.Id > 0);
+
+        // R3: 30 Tage Tourismus ergeben "approved".
+        Assert.AreEqual("approved", saved.Decision.Status);
     }
 }
